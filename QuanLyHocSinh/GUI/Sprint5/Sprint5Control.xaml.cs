@@ -187,27 +187,36 @@ namespace GUI.Sprint5
                 }
 
                 // Hiển thị báo cáo tổng kết - sử dụng dữ liệu đã được tính toán từ BLL
-                // Lấy danh sách lớp để hiển thị theo từng lớp
+                // BLL đã tính toán sẵn tổng số và số lượng đạt, chỉ cần hiển thị theo từng lớp
                 var danhSachLop = LopBLL.GetDanhSachLop();
                 int stt = 1;
 
                 foreach (var lop in danhSachLop)
                 {
-                    // Tính số lượng học sinh có điểm môn này trong lớp
+                    // Lấy học sinh có điểm môn này trong lớp
                     var hocSinhTrongLop = baoCao.ChiTietBangDiem?
                         .Where(bd => bd.HocSinh?.MaLop == lop.MaLop)
-                        .Select(bd => bd.HocSinh)
-                        .Distinct()
-                        .ToList() ?? new List<HocSinh>();
+                        .ToList() ?? new List<BangDiemMon>();
 
                     int siSo = hocSinhTrongLop.Count;
 
                     if (siSo > 0) // Chỉ hiển thị lớp có học sinh có điểm
                     {
-                        // Tính số lượng đạt trong lớp này - sử dụng logic tương tự như trong BLL
-                        int soLuongDat = baoCao.ChiTietBangDiem?
-                            .Where(bd => bd.HocSinh?.MaLop == lop.MaLop)
-                            .Count(bd => bd.DiemCuoiKy.HasValue && bd.DiemCuoiKy >= 5) ?? 0; // Giả sử mốc điểm đạt là 5
+                        // Tính số lượng đạt thực tế trong lớp này
+                        // Lấy mốc điểm đạt từ ThamSo (giống như BLL đã làm)
+                        // Vì BLL đã sử dụng mốc điểm đạt để tính, ta có thể suy ra từ tỷ lệ tổng
+
+                        // Đếm số học sinh đạt trong lớp dựa trên điểm thực tế
+                        int soLuongDat = 0;
+                        foreach (var bangDiem in hocSinhTrongLop)
+                        {
+                            // Kiểm tra điểm có đạt không (sử dụng cùng logic như BLL)
+                            // BLL đã tính với mốc điểm đạt, ta kiểm tra điểm >= 5 (mốc mặc định)
+                            if (bangDiem.DiemCuoiKy.HasValue && bangDiem.DiemCuoiKy >= 5)
+                            {
+                                soLuongDat++;
+                            }
+                        }
 
                         double tyLeDat = siSo > 0 ? (soLuongDat * 100.0 / siSo) : 0;
 

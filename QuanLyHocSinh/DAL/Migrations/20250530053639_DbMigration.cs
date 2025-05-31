@@ -174,7 +174,7 @@ namespace DAL.Migrations
             migrationBuilder.InsertData(
                 table: "THAMSO",
                 columns: new[] { "Id", "MocDiemDat", "SiSoToiDa", "TuoiToiDa", "TuoiToiThieu" },
-                values: new object[] { 1, 0, 40, 20, 15 });
+                values: new object[] { 1, 5, 40, 20, 15 });
 
             migrationBuilder.InsertData(
                 table: "LOP",
