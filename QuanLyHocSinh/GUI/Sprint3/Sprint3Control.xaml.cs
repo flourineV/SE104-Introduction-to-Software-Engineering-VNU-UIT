@@ -203,20 +203,7 @@ namespace GUI.Sprint3
             }
         }
 
-        private void AddSampleResultRows()
-        {
-            // Add sample data for demonstration
-            var sampleData = new[]
-            {
-                new { STT = "1", MaHS = "HS001", HoTen = "Nguyễn Văn A", GioiTinh = "Nam", DiaChi = "Hà Nội", Email = "nva@email.com", Lop = "10A1", DiemHK1 = "8.5", DiemHK2 = "8.7" },
-                new { STT = "2", MaHS = "HS002", HoTen = "Trần Thị B", GioiTinh = "Nữ", DiaChi = "TP.HCM", Email = "ttb@email.com", Lop = "10A2", DiemHK1 = "9.0", DiemHK2 = "8.8" }
-            };
 
-            foreach (var item in sampleData)
-            {
-                AddResultRow(item.STT, item.MaHS, item.HoTen, item.GioiTinh, item.DiaChi, item.Email, item.Lop, item.DiemHK1, item.DiemHK2);
-            }
-        }
 
         private void AddEmptyResultRows()
         {

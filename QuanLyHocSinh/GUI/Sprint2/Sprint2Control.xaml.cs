@@ -77,28 +77,23 @@ namespace GUI.Sprint2
                 try
                 {
                     var thamSo = DAL.DataContext.Context.THAMSO.FirstOrDefault();
-                    int siSoToiDa = 40; // Giá trị mặc định
 
                     if (thamSo != null)
                     {
-                        siSoToiDa = thamSo.SiSoToiDa;
+                        int siSoToiDa = thamSo.SiSoToiDa;
                         txb_SiSoToiDa.Text = siSoToiDa.ToString();
+
+                        // Tạo động số lượng dòng học sinh dựa trên sĩ số tối đa
+                        TaoDanhSachHocSinh(siSoToiDa);
                     }
                     else
                     {
-                        txb_SiSoToiDa.Text = siSoToiDa.ToString();
+                        MessageBox.Show("Chưa có thông tin tham số trong hệ thống. Vui lòng thiết lập tham số trước.", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
-
-                    // Tạo động số lượng dòng học sinh dựa trên sĩ số tối đa
-                    TaoDanhSachHocSinh(siSoToiDa);
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Lỗi khi lấy sĩ số tối đa: {ex.Message}", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-                    txb_SiSoToiDa.Text = "40"; // Giá trị mặc định
-
-                    // Tạo với giá trị mặc định
-                    TaoDanhSachHocSinh(40);
                 }
 
                 // Chọn lớp đầu tiên nếu có
@@ -445,23 +440,8 @@ namespace GUI.Sprint2
                 // Cập nhật lại danh sách học sinh
                 danhSachHocSinh = BLL.HocSinhBLL.GetDanhSachHocSinh();
 
-                if (cbx_Lop.SelectedItem != null)
-                {
-                    Lop lopDuocChon = cbx_Lop.SelectedItem as Lop;
-                    if (lopDuocChon != null)
-                    {
-                        // Kiểm tra xem lớp đã có học sinh chưa
-                        List<HocSinh> danhSachHocSinhTrongLop = BLL.LopBLL.LayDanhSachHocSinh(lopDuocChon.MaLop);
-
-                        if (danhSachHocSinhTrongLop != null && danhSachHocSinhTrongLop.Count > 0)
-                        {
-                            // Nếu lớp đã có học sinh, hiển thị lại danh sách học sinh của lớp
-                            cbx_Lop_SelectionChanged(null, null);
-                            MessageBox.Show("Đã làm mới dữ liệu", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Information);
-                            return;
-                        }
-                    }
-                }
+                // Bỏ logic kiểm tra lớp đã có học sinh - luôn luôn làm mới hoàn toàn
+                // Điều này đảm bảo rằng khi bấm "Làm mới", tất cả ComboBox sẽ được reset
 
                 // Cập nhật lại danh sách lớp
                 danhSachLop = BLL.LopBLL.GetDanhSachLop();
@@ -489,11 +469,13 @@ namespace GUI.Sprint2
                         {
                             if (control is ComboBox comboBox)
                             {
-                                // Xóa selection và cả text hiển thị
+                                // Xóa hoàn toàn selection và text
                                 comboBox.SelectedItem = null;
+                                comboBox.SelectedIndex = -1;
                                 comboBox.Text = string.Empty;
 
-                                // Thiết lập lại ItemsSource như cũ
+                                // Xóa và thiết lập lại ItemsSource hoàn toàn
+                                comboBox.ItemsSource = null;
                                 comboBox.ItemsSource = danhSachHocSinhChuaCoLop;
                                 comboBox.DisplayMemberPath = "HoTen";
                                 comboBox.SelectedValuePath = "MaHS";
@@ -501,15 +483,17 @@ namespace GUI.Sprint2
                                 comboBox.IsTextSearchEnabled = true;
                                 TextSearch.SetTextPath(comboBox, "HoTen");
                                 comboBox.StaysOpenOnEdit = true;
-                                comboBox.AddHandler(TextBoxBase.TextChangedEvent,
-                                                   new TextChangedEventHandler(ComboBox_TextChanged));
+
+                                // Xóa event handler cũ trước khi thêm mới để tránh duplicate
+                                comboBox.RemoveHandler(TextBoxBase.TextChangedEvent, new TextChangedEventHandler(ComboBox_TextChanged));
+                                comboBox.AddHandler(TextBoxBase.TextChangedEvent, new TextChangedEventHandler(ComboBox_TextChanged));
                             }
                             else if (control is TextBox textBox && Grid.GetColumn(control) > 1)
                             {
                                 // Xóa sạch các TextBox (Giới tính, Ngày sinh, Địa chỉ…)
                                 textBox.Text = string.Empty;
-                                // Nếu muốn reset cả màu nền:
-                                textBox.Background = Brushes.LightGray;
+                                // Reset màu nền về màu mặc định
+                                textBox.Background = new SolidColorBrush(Color.FromRgb(0xCC, 0xCC, 0xCC)); // Màu nền #CCCCCC
                             }
                         }
                     }
